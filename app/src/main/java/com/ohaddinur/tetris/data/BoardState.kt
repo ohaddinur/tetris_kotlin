@@ -3,12 +3,6 @@ package com.ohaddinur.tetris.data
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 
-data class Cell(val type: CellType = CellType.None, val color: Color = Color.Transparent)
-
-enum class CellType {
-    None, Square
-}
-
 data class BoardState(
     private val _rows: Int,
     private val _columns: Int,
@@ -29,22 +23,27 @@ data class BoardState(
         }
     }
 
-    fun updateCells(positionsToRemove: List<Position>, positionsToAdd: List<Position>, cell: Cell) {
+    fun updateCells(positionsToRemove: List<Position>,
+                    positionsToAdd: List<Position>,
+                    cell: Cell) {
         setCells(positionsToRemove, Cell())
         setCells(positionsToAdd, cell)
     }
 
     fun canMove(positions: List<Position>, dx: Int, dy: Int): Boolean {
+        //Check if shape can move to a given offset
         for (position in positions) {
             val newPosition = Position(position.x + dx, position.y + dy)
-            //check if new position is not in current positions
+            //check if new position is not in current positions (a part of the shape)
             if (positions.contains(newPosition)) {
                 continue
             }
+            //Check if position is within board's bounds
             if (newPosition.x < 0 || newPosition.x >= _columns ||
                 newPosition.y < 0 || newPosition.y >= _rows) {
                 return false
             }
+            //Check if position is not empty
             if (_cells[newPosition.y][newPosition.x].type != CellType.None) {
                 return false
             }
@@ -53,6 +52,8 @@ data class BoardState(
     }
 
     fun isInBounds(positions: List<Position>): Offset? {
+        //Check if shape's position are in board bounds,
+        //if not return offset to correct
         var maxOffsetX = 0
         var maxOffsetY = 0
         for (position in positions) {
@@ -88,6 +89,8 @@ data class BoardState(
     }
 
     fun fullRows(): List<Int> {
+        //Check for full rows and remove them
+        //Returns a list of the full rows indexes
         val fullRows: MutableList<Int> = mutableListOf()
         _cells.forEachIndexed { y, row ->
             if (row.all { cell -> cell.type != CellType.None }) {
