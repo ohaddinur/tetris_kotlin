@@ -1,7 +1,6 @@
 package com.ohaddinur.tetris.data
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 
 data class BoardState(
     private val _rows: Int,
