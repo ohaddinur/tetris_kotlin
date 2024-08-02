@@ -19,11 +19,16 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
     private var _score: Int = 0
     private var _gameOver: Boolean = false
     private lateinit var _board: BoardState
-    private var _speed: Int = 1000
     private lateinit var _activeShape: Shape
     private var _comparable: Int = 0
+
+
+    private var _ticksInterval: Int = 1000
     private var _tickTimer: TimerTask? = null
     private var _preventTick = false;
+
+    private var _accelerate: Boolean = false
+    private var _dragDirection: Int = 0;
 
     init {
         resetGame()
@@ -39,7 +44,7 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
 
     fun resetGame() {
         _board = BoardState(rows, columns)
-        _speed = 1000
+        _ticksInterval = 1000
         _score = 0
         _gameOver = false
         _tickTimer?.cancel()
@@ -58,6 +63,7 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
        var removeRowsDelay: Int = 0
        if (!_preventTick &&
            !moveShape(0, 1)) {
+           _accelerate = false;
             val fullRows = _board.fullRows()
             if (fullRows.size > 0) {
                 _score += 10 * fullRows.size
@@ -76,6 +82,9 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
                             )
                         }
                     }
+
+                if (_ticksInterval > 500) _ticksInterval -= 50
+                else if(_ticksInterval > 300) _ticksInterval -= 10
                 }
             if (_activeShape.offset.y > 0) {
                 getNewShape()
@@ -88,14 +97,15 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
         }
         if (!_gameOver)
             _tickTimer = Timer("nextTick", false)
-                .schedule(delay = (_speed + removeRowsDelay).toLong()){
+                .schedule(delay = (
+                        if(_accelerate) 100
+                        else _ticksInterval + removeRowsDelay).toLong()){
                 tick()
             }
     }
 
-    fun moveShape(dx: Int, dy: Int, force: Boolean = false): Boolean {
-        if (!force &&
-            !_board.canMove(_activeShape.getPositions(), dx, dy)) {
+    fun moveShape(dx: Int, dy: Int): Boolean {
+        if (!_board.canMove(_activeShape.getPositions(), dx, dy)) {
             return false
         }
 
@@ -119,7 +129,7 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
         _activeShape.rotate()
         val offset: Offset? = _board.isInBounds(_activeShape.getPositions())
         if(offset != null){
-            moveShape(offset.x.toInt(), offset.y.toInt(), true)
+            _activeShape.move(offset.x.toInt(), offset.y.toInt())
         }
         _board.updateCells(positionsToRemove,
                         _activeShape.getPositions(),
@@ -132,9 +142,28 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
         _preventTick = false
     }
 
-    fun moveIfInShape(position: Position, offset: Offset){
+    fun setDragIfInShape(dragDirection: Int, position: Position? ){
+        println("set drag $dragDirection")
+        _preventTick = true
+        _dragDirection = dragDirection
         if(_activeShape.getPositions().contains(position)){
-            moveShape(offset.x.toInt(), offset.y.toInt())
+            var canMove: Boolean = true
+            while(_dragDirection != 0 &&
+                    canMove){
+                canMove = moveShape(dragDirection,0)
+                Thread.sleep(300)
+            }
+            _dragDirection = 0;
+        }
+        _preventTick = false;
+    }
+
+
+    fun accelerateIfInShape(position: Position){
+        if(_activeShape.getPositions().contains(position)) {
+            _accelerate = true;
+            _tickTimer?.cancel()
+            tick()
         }
     }
 

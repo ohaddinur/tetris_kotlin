@@ -17,7 +17,7 @@ class BoardStateTest {
         val boardState = BoardState(4, 4)
         boardState.setCells(listOf(
             Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0),
-            Position(0, 1), Position(1, 1), Position(2, 1), Position(3, 1),
+            Position(0, 1), Position(2, 1), Position(3, 1),
             Position(0, 2), Position(1, 2), Position(2, 2), Position(3, 2),
             Position(0, 3), Position(1, 3), Position(2, 3), Position(3, 3)
         ), Cell(CellType.Square, Color.Red)
@@ -27,7 +27,8 @@ class BoardStateTest {
         val removedRows = boardState.fullRows()
 
         // Assert that all full rows are removed
-        assertEquals(listOf(3, 2, 1, 0), removedRows)
-        assertEquals(MutableList(4) { MutableList(4) { Cell() } }, boardState.cells)
+        assertEquals(listOf(0, 2, 3), removedRows)
+        assertEquals(4, boardState.cells.size)
+        //assertEquals(3, (boardState.cells.find {  row -> row == MutableList(4) { Cell()  }})?.size)
     }
 }

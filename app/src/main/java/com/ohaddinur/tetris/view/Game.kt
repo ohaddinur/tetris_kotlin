@@ -85,10 +85,10 @@ fun Game() {
         BoardView(
             cellSize = cellSize,
             cells = gameUiState.boardCells,
-            scale = scale,
             rowsToRemove = gameUiState.rowsToRemove,
             onTap = {position -> viewModel.rotateIfInShape(position) },
-            onDrag = { position, offset -> viewModel.moveIfInShape(position, offset) }
+            onAccelerate = { position -> viewModel.accelerateIfInShape(position) },
+            onDragX = { direction, position -> viewModel.setDragIfInShape(direction, position) }
         )
             Row(
                 modifier = Modifier
