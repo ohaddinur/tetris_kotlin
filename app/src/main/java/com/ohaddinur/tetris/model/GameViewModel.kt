@@ -2,11 +2,14 @@ package com.ohaddinur.tetris.model
 
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ohaddinur.tetris.data.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -148,17 +151,15 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
             position != null &&
             _activeShape.isPositionInShape(position)
         ){
-            Thread {
-                _preventTick = true
-                var canMove: Boolean = true
+            _preventTick = true
+            viewModelScope.launch(Dispatchers.Default) {
                 while(_dragDirection != 0 &&
-                    canMove){
-                    canMove = moveShape(dragDirection,0)
+                    moveShape(dragDirection,0)){
                     Thread.sleep(250)
                 }
                 _dragDirection = 0;
                 _preventTick = false;
-            }.start()
+            }
         }
     }
 

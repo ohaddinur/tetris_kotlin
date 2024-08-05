@@ -8,7 +8,7 @@ data class BoardState(
 ) {
     private var _cells: MutableList<MutableList<Cell>> = MutableList(_rows) { MutableList(_columns) { Cell() } }
 
-    val cells : MutableList<MutableList<Cell>>
+    val cells : List<List<Cell>>
             get() = _cells
 
     private fun setAt(x: Int, y: Int, cell: Cell) {
