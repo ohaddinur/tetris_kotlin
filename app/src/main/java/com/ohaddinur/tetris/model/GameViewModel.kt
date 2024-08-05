@@ -59,7 +59,7 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
         tick()
     }
 
-   private fun tick() {
+    private fun tick() {
        var removeRowsDelay: Int = 0
        if (!_preventTick &&
            !moveShape(0, 1)) {
@@ -143,19 +143,23 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
     }
 
     fun setDragIfInShape(dragDirection: Int, position: Position? ){
-        println("set drag $dragDirection")
-        _preventTick = true
         _dragDirection = dragDirection
-        if(_activeShape.getPositions().contains(position)){
-            var canMove: Boolean = true
-            while(_dragDirection != 0 &&
+        if(dragDirection != 0 &&
+            position != null &&
+            _activeShape.isPositionInShape(position)
+        ){
+            Thread {
+                _preventTick = true
+                var canMove: Boolean = true
+                while(_dragDirection != 0 &&
                     canMove){
-                canMove = moveShape(dragDirection,0)
-                Thread.sleep(300)
-            }
-            _dragDirection = 0;
+                    canMove = moveShape(dragDirection,0)
+                    Thread.sleep(250)
+                }
+                _dragDirection = 0;
+                _preventTick = false;
+            }.start()
         }
-        _preventTick = false;
     }
 
 
@@ -168,7 +172,7 @@ data class GameViewModel (val rows: Int, val columns: Int) : ViewModel() {
     }
 
     fun rotateIfInShape(position: Position){
-        if(_activeShape.getPositions().contains(position)){
+        if(_activeShape.isPositionInShape(position)){
             rotateShape()
         }
     }

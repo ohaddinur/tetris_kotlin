@@ -12,4 +12,10 @@ data class Position(val x: Int, val y: Int) : Comparable<Position> {
         return y.compareTo(other.y)
     }
     
+    fun isNear(other: Position): Boolean {
+        return (x == other.x && y == other.y + 1) ||
+                (x == other.x && y == other.y - 1) ||
+                (x == other.x + 1 && y == other.y) ||
+                (x == other.x - 1 && y == other.y)
+    }
 }

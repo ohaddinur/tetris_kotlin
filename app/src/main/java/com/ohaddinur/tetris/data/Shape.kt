@@ -28,6 +28,11 @@ class Shape(private var shape: List<List<Boolean>>, offset: Position? = null) {
         return positions
     }
 
+    fun isPositionInShape(position: Position): Boolean{
+        return getPositions().contains(position) ||
+                getPositions().firstOrNull() { shapPosition -> shapPosition.isNear(position)} != null
+    }
+
     fun move(dx: Int, dy: Int) {
         offset = Position(offset.x + dx, offset.y + dy)
     }

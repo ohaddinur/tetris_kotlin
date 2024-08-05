@@ -48,9 +48,9 @@ fun BoardView(cells: List<List<Cell>>,
                                         var dragPosition = Position(x,y)
                                         draggging = true
                                         if(dragAmount.x > 2)
-                                            Thread {onDragX(1, dragPosition)}.start()
+                                            onDragX(1, dragPosition)
                                         else if(dragAmount.x < -2)
-                                            Thread { onDragX(-1, dragPosition) }.start()
+                                            onDragX(-1, dragPosition)
                                         else if(dragAmount.y > 2)
                                             onAccelerate(dragPosition!!)
                                     }
